@@ -106,7 +106,7 @@ export default function TourCard({
             </div>
           </div>
           <Link
-            href={`/tours/${id}`}
+            href={`/packages/${id}`}
             className="px-4 py-2 bg-[#0f3d4c] text-white text-xs font-medium rounded hover:bg-[#1a5568] transition-colors uppercase tracking-wide"
           >
             View Journey

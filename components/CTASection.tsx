@@ -1,77 +1,79 @@
 "use client"
 
 import Link from "next/link"
+import { ArrowRight, Sparkles } from "lucide-react"
+import AnimatedPeacockFeather from "./AnimatedPeacockFeather"
 
 export default function CTASection() {
   return (
-    <section className="relative py-20 px-6 overflow-hidden">
-      {/* Background Image - Tea plantation */}
-      <div 
+    <section className="relative py-28 px-6 overflow-hidden">
+      {/* Background image */}
+      <div
         className="absolute inset-0 bg-cover bg-center"
-        style={{
-          backgroundImage: `url('https://images.unsplash.com/photo-1546587348-d12660c30c50?w=1920&q=80')`,
-        }}
+        style={{ backgroundImage: `url('https://images.unsplash.com/photo-1546587348-d12660c30c50?w=1920&q=80')` }}
       />
-      <div className="absolute inset-0 bg-[#0f3d4c]/80" />
+      {/* Deep overlay */}
+      <div className="absolute inset-0"
+        style={{ background: "linear-gradient(135deg, rgba(7,24,40,0.92) 0%, rgba(15,61,76,0.88) 50%, rgba(7,24,40,0.92) 100%)" }} />
 
-      {/* Peacock feather decorations */}
-      <div className="absolute left-0 bottom-0 w-64 h-80 opacity-25">
-        <PeacockDecor side="left" />
+      {/* Radial glow */}
+      <div className="absolute inset-0 pointer-events-none"
+        style={{ background: "radial-gradient(ellipse at 50% 50%, rgba(212,168,83,0.08) 0%, transparent 65%)" }} />
+
+      {/* Animated feathers */}
+      <div className="absolute left-0 top-0 pointer-events-none">
+        <AnimatedPeacockFeather size={140} delay={0}   rotation={10}  opacity={0.3}  animate="drift" />
       </div>
-      <div className="absolute right-0 top-0 bottom-0 w-72 opacity-35">
-        <PeacockDecor side="right" />
+      <div className="absolute left-16 bottom-0 pointer-events-none">
+        <AnimatedPeacockFeather size={90}  delay={2.1} rotation={-5}  opacity={0.2}  animate="float" />
+      </div>
+      <div className="absolute right-0 top-0 pointer-events-none">
+        <AnimatedPeacockFeather size={130} delay={1.3} rotation={175} opacity={0.3}  animate="drift" />
+      </div>
+      <div className="absolute right-20 bottom-4 pointer-events-none">
+        <AnimatedPeacockFeather size={80}  delay={3.5} rotation={160} opacity={0.18} animate="sway"  />
       </div>
 
-      <div className="relative max-w-3xl mx-auto text-center">
-        <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-          Ready to experience the difference?
+      {/* Content */}
+      <div className="relative z-10 max-w-3xl mx-auto text-center">
+        {/* Peacock eye icon */}
+        <div className="flex justify-center mb-6">
+          <div className="w-14 h-14 rounded-full flex items-center justify-center glow-peacock"
+            style={{ background: "linear-gradient(135deg, rgba(212,168,83,0.2), rgba(45,139,179,0.2))", border: "1px solid rgba(212,168,83,0.3)" }}>
+            <Sparkles className="w-6 h-6 text-[#d4a853]" />
+          </div>
+        </div>
+
+        <p className="text-[10px] tracking-[0.35em] font-semibold uppercase mb-4"
+          style={{ color: "#d4a853" }}>Start Your Journey</p>
+
+        <h2 className="font-serif text-4xl md:text-5xl text-white leading-tight mb-6">
+          Ready to experience<br />
+          <span className="text-shimmer italic">the difference?</span>
         </h2>
-        <p className="text-white/70 text-sm md:text-base mb-8 max-w-xl mx-auto">
-          Join a limited departure group and see the world with fresh eyes and a lighter footprint.
+
+        <p className="text-white/60 text-sm md:text-base leading-relaxed mb-10 max-w-xl mx-auto">
+          Join a limited departure group and see Sri Lanka with fresh eyes — guided by locals who love
+          this island as much as you will.
         </p>
+
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link
-            href="/book"
-            className="inline-flex items-center justify-center px-8 py-3 bg-[#d4a853] text-[#0f3d4c] rounded-full font-medium hover:bg-[#e5c07b] transition-colors"
+            href="/plan-trip"
+            className="btn-peacock inline-flex items-center justify-center gap-2 px-9 py-4 rounded-full font-semibold text-sm text-[#071828] transition-all duration-300"
+            style={{ background: "linear-gradient(135deg, #d4a853, #f0d060, #c9a227)" }}
           >
-            Book Your Journey
+            Plan My Journey
+            <ArrowRight className="w-4 h-4" />
           </Link>
           <Link
             href="/contact"
-            className="inline-flex items-center justify-center px-8 py-3 border border-white text-white rounded-full font-medium hover:bg-white hover:text-[#0f3d4c] transition-colors"
+            className="inline-flex items-center justify-center px-9 py-4 rounded-full font-semibold text-sm text-white border border-white/25 glass-card hover:border-[#d4a853]/50 transition-all duration-300"
           >
-            Contact an Advisor
+            Speak with an Advisor
           </Link>
         </div>
       </div>
     </section>
-  )
-}
-
-function PeacockDecor({ side }: { side: "left" | "right" }) {
-  if (side === "right") {
-    return (
-      <svg viewBox="0 0 280 500" className="w-full h-full" fill="none">
-        {[0, 1, 2, 3, 4].map((i) => (
-          <g key={i} transform={`translate(${140 + i * 30}, ${60 + i * 90}) rotate(${-15 + i * 8})`}>
-            <ellipse cx="0" cy="0" rx="32" ry="45" fill="#1a6b5c" opacity="0.7" />
-            <ellipse cx="0" cy="-4" rx="24" ry="34" fill="#2d8bb3" opacity="0.8" />
-            <ellipse cx="0" cy="-7" rx="16" ry="23" fill="#c9a227" opacity="0.9" />
-            <ellipse cx="0" cy="-9" rx="9" ry="13" fill="#0f3d4c" />
-          </g>
-        ))}
-      </svg>
-    )
-  }
-
-  return (
-    <svg viewBox="0 0 200 320" className="w-full h-full" fill="none">
-      <g transform="translate(80, 240)">
-        <ellipse cx="0" cy="-25" rx="35" ry="48" fill="#1a6b5c" opacity="0.6" />
-        <ellipse cx="0" cy="-30" rx="26" ry="36" fill="#2d8bb3" opacity="0.7" />
-        <ellipse cx="0" cy="-33" rx="17" ry="24" fill="#c9a227" opacity="0.8" />
-        <ellipse cx="0" cy="-35" rx="10" ry="14" fill="#0f3d4c" />
-      </g>
-    </svg>
   )
 }

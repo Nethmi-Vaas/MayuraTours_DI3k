@@ -2,116 +2,114 @@
 
 import Link from "next/link"
 import { ArrowRight } from "lucide-react"
+import AnimatedPeacockFeather from "./AnimatedPeacockFeather"
+
+const FEATHERS = [
+  { size: 115, delay: 0,   rotation: -14, opacity: 0.7,  top: "0%",  right: "4%"  },
+  { size: 80,  delay: 1.4, rotation: 12,  opacity: 0.5,  top: "10%", right: "22%" },
+  { size: 95,  delay: 2.6, rotation: -28, opacity: 0.55, top: "-4%", right: "14%" },
+  { size: 60,  delay: 0.7, rotation: 30,  opacity: 0.38, top: "22%", right: "8%"  },
+  { size: 70,  delay: 3.2, rotation: -8,  opacity: 0.42, top: "5%",  right: "32%" },
+  { size: 50,  delay: 1.9, rotation: 20,  opacity: 0.3,  top: "28%", right: "26%" },
+] as const
 
 export default function HeroSection() {
   return (
-    <section className="relative min-h-[500px] bg-[#0f3d4c] overflow-hidden">
-      {/* Peacock feather decorations */}
-      <div className="absolute top-0 right-0 w-96 h-full">
-        <div className="absolute top-4 right-4">
-          <PeacockFeather className="w-16 h-24 transform rotate-12" />
-        </div>
-        <div className="absolute top-20 right-24">
-          <PeacockFeather className="w-14 h-20 transform -rotate-6" />
-        </div>
-        <div className="absolute top-8 right-44">
-          <PeacockFeather className="w-12 h-18 transform rotate-3" />
-        </div>
-        <div className="absolute top-32 right-8">
-          <PeacockFeather className="w-10 h-16 transform rotate-20" />
-        </div>
-        <div className="absolute top-40 right-36">
-          <PeacockFeather className="w-8 h-14 transform -rotate-12" />
-        </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-6 pt-24 pb-16">
-        <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl text-white italic max-w-3xl leading-tight">
-          Welcome to Sri Lanka – Explore Paradise Like Never Before
-        </h1>
-        <p className="mt-4 text-white/80 text-sm md:text-base">
-          Turn Your Dream Destinations Into Real Journeys
-        </p>
-
-        <div className="flex flex-wrap gap-4 mt-8">
-          <Link
-            href="/plan-trip"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-[#e07a38] text-white rounded-full font-medium hover:bg-[#c96a2d] transition-colors"
-          >
-            Plan my trip
-            <ArrowRight className="w-4 h-4" />
-          </Link>
-          <Link
-            href="/tours"
-            className="inline-flex items-center px-6 py-3 bg-[#e07a38] text-white rounded-full font-medium hover:bg-[#c96a2d] transition-colors"
-          >
-            Browse tours
-          </Link>
-        </div>
-      </div>
-    </section>
-  )
-}
-
-function PeacockFeather({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 60 100"
-      className={className}
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
+    <section
+      className="relative overflow-hidden flex items-center"
+      style={{
+        minHeight: "52vh",
+        background: "linear-gradient(135deg, #071828 0%, #0f3d4c 55%, #1a3a2a 85%, #071828 100%)",
+      }}
     >
-      {/* Feather stem */}
-      <path
-        d="M30 100 Q30 60 30 20"
-        stroke="#8B7355"
-        strokeWidth="1.5"
-        fill="none"
+      {/* Radial glow */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            "radial-gradient(ellipse at 25% 65%, rgba(45,139,179,0.15) 0%, transparent 55%)," +
+            "radial-gradient(ellipse at 72% 30%, rgba(26,107,92,0.12) 0%, transparent 50%)",
+        }}
       />
-      {/* Outer feather shape */}
-      <ellipse
-        cx="30"
-        cy="30"
-        rx="22"
-        ry="28"
-        fill="#1a6b5c"
-        opacity="0.9"
+
+      {/* Animated peacock feathers — right side */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        {FEATHERS.map((f, i) => (
+          <div
+            key={i}
+            className="absolute"
+            style={{ top: f.top, right: f.right }}
+          >
+            <AnimatedPeacockFeather
+              size={f.size}
+              delay={f.delay}
+              rotation={f.rotation}
+              opacity={f.opacity}
+              animate={i % 3 === 0 ? "drift" : i % 3 === 1 ? "float" : "sway"}
+            />
+          </div>
+        ))}
+      </div>
+
+      {/* Rising particles */}
+      <div className="absolute inset-0 pointer-events-none">
+        {Array.from({ length: 8 }).map((_, i) => (
+          <div
+            key={i}
+            className="absolute rounded-full animate-particle-rise"
+            style={{
+              width: 2,
+              height: 2,
+              left: `${6 + i * 10}%`,
+              bottom: `${12 + (i % 3) * 14}%`,
+              background: i % 2 === 0 ? "#d4a853" : "#2d8bb3",
+              animationDelay: `${i * 0.45}s`,
+              animationDuration: `${3.2 + (i % 3) * 0.6}s`,
+              "--drift": `${(i % 2 === 0 ? 1 : -1) * 10}px`,
+            } as React.CSSProperties}
+          />
+        ))}
+      </div>
+
+      {/* Content */}
+      <div className="relative z-10 max-w-7xl mx-auto px-6 py-16 w-full">
+        <div className="max-w-xl">
+          <p className="text-[10px] tracking-[0.38em] font-semibold uppercase mb-4" style={{ color: "#d4a853" }}>
+            Sri Lanka's Premier Tour Operator
+          </p>
+          <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl text-white leading-tight mb-1">
+            Discover the
+          </h1>
+          <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl leading-tight mb-5 text-shimmer">
+            Jewel of Asia
+          </h1>
+          <p className="text-white/60 text-sm md:text-base max-w-md mb-9 leading-relaxed">
+            Handcrafted journeys through Sri Lanka's ancient temples, misty highlands,
+            and pristine shores — guided by locals who call this paradise home.
+          </p>
+          <div className="flex flex-wrap gap-3">
+            <Link
+              href="/plan-trip"
+              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full font-semibold text-sm text-[#071828] hover:brightness-110 transition-all"
+              style={{ background: "linear-gradient(135deg, #d4a853, #f0d060)" }}
+            >
+              Plan My Trip <ArrowRight className="w-4 h-4" />
+            </Link>
+            <Link
+              href="/packages"
+              className="inline-flex items-center px-7 py-3.5 rounded-full font-semibold text-sm text-white border border-white/20 glass-card hover:border-[#d4a853]/50 transition-all"
+            >
+              Browse Packages
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom fade */}
+      <div
+        className="absolute bottom-0 left-0 right-0 h-12 pointer-events-none"
+        style={{ background: "linear-gradient(to bottom, transparent, rgba(255,255,255,0.05))" }}
       />
-      {/* Middle ring - blue */}
-      <ellipse
-        cx="30"
-        cy="28"
-        rx="16"
-        ry="20"
-        fill="#2d8bb3"
-        opacity="0.9"
-      />
-      {/* Inner ring - gold */}
-      <ellipse
-        cx="30"
-        cy="26"
-        rx="10"
-        ry="12"
-        fill="#c9a227"
-        opacity="0.95"
-      />
-      {/* Center eye - dark blue */}
-      <ellipse
-        cx="30"
-        cy="24"
-        rx="6"
-        ry="7"
-        fill="#0f3d4c"
-      />
-      {/* Highlight */}
-      <ellipse
-        cx="32"
-        cy="22"
-        rx="2"
-        ry="2.5"
-        fill="#ffffff"
-        opacity="0.4"
-      />
-    </svg>
+    </section>
   )
 }
