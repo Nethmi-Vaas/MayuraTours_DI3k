@@ -95,16 +95,7 @@ export default function TourCard({
           <span>{category}</span>
         </div>
 
-        <div className="mt-4 flex items-center justify-between">
-          <div>
-            {originalPrice && (
-              <span className="text-xs text-gray-400 line-through">${originalPrice.toLocaleString()}</span>
-            )}
-            <div className="flex items-baseline gap-1">
-              <span className="text-lg font-bold text-[#0f3d4c]">${price.toLocaleString()}</span>
-              <span className="text-xs text-gray-500">/person</span>
-            </div>
-          </div>
+        <div className="mt-4 flex items-center justify-end">
           <Link
             href={`/packages/${id}`}
             className="px-4 py-2 bg-[#0f3d4c] text-white text-xs font-medium rounded hover:bg-[#1a5568] transition-colors uppercase tracking-wide"

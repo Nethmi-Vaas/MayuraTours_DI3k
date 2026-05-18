@@ -136,14 +136,7 @@ function PackageCard({ pkg, index }: { pkg: Package; index: number }) {
           <span className="truncate max-w-[60px]">{pkg.destination}</span>
         </div>
 
-        <div className="mt-2.5 flex items-center justify-between">
-          <div>
-            {originalPrice && <span className="text-[10px] text-gray-400 line-through">${originalPrice.toLocaleString()}</span>}
-            <div className="flex items-baseline gap-0.5">
-              <span className="text-sm font-bold text-[#0f3d4c]">${price.toLocaleString()}</span>
-              <span className="text-[9px] text-gray-500">/person</span>
-            </div>
-          </div>
+        <div className="mt-2.5 flex items-center justify-end">
           <Link
             href={`/packages/${pkg.id}`}
             className="px-2.5 py-1.5 bg-[#0f3d4c] text-white text-[10px] font-medium rounded hover:bg-[#1a5568] transition-colors uppercase tracking-wide"

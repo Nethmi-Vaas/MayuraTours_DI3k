@@ -62,7 +62,6 @@ function MiniCard({ pkg, index }: { pkg: Package; index: number }) {
           <div className="flex items-center gap-1 text-xs text-gray-400">
             <Clock className="w-3 h-3" />{pkg.duration_days}d
           </div>
-          <p className="text-sm font-bold text-[#0f3d4c]">${price.toLocaleString()}</p>
         </div>
       </div>
     </Link>

@@ -145,16 +145,7 @@ function PackageCard({ pkg, index }: { pkg: Package; index: number }) {
           </span>
         </div>
 
-        <div className="mt-4 flex items-center justify-between">
-          <div>
-            {originalPrice && (
-              <span className="text-sm text-gray-400 line-through">${originalPrice.toLocaleString()}</span>
-            )}
-            <div className="flex items-baseline gap-1">
-              <span className="text-2xl font-bold text-[#0f3d4c]">${price.toLocaleString()}</span>
-              <span className="text-xs text-gray-500">/person</span>
-            </div>
-          </div>
+        <div className="mt-4 flex items-center justify-end">
           <Link
             href={`/packages/${pkg.id}`}
             className="px-4 py-2 bg-[#0f3d4c] text-white text-sm font-medium rounded-lg hover:bg-[#1a5568] transition-colors"

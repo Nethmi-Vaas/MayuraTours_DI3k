@@ -98,16 +98,6 @@ export default function PackageDetailPage() {
               {/* Booking Sidebar */}
               <div className="lg:col-span-1">
                 <div className="bg-white border border-gray-200 rounded-xl p-6 sticky top-6">
-                  <div className="mb-4">
-                    {pkg.discount_price && (
-                      <span className="text-sm text-gray-400 line-through">${pkg.price.toLocaleString()}</span>
-                    )}
-                    <div className="flex items-baseline gap-1">
-                      <span className="text-3xl font-bold text-[#0f3d4c]">${price.toLocaleString()}</span>
-                      <span className="text-sm text-gray-500">/person</span>
-                    </div>
-                  </div>
-
                   <Link
                     href={`/contact?package=${pkg.id}&name=${encodeURIComponent(pkg.name)}`}
                     className="w-full block text-center py-3 bg-[#0f3d4c] text-white rounded-lg font-medium hover:bg-[#1a5568] transition-colors"

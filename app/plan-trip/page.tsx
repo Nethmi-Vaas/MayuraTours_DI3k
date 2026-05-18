@@ -12,6 +12,8 @@ const TRIP_TYPES = ["Cultural Heritage", "Wildlife & Nature", "Beach & Coast", "
 const BUDGETS = ["Under $1,000", "$1,000–$2,000", "$2,000–$3,500", "$3,500–$5,000", "$5,000+"]
 const DURATIONS = ["3–5 days", "6–8 days", "9–12 days", "13–16 days", "17+ days"]
 
+const inputCls = "w-full px-3 py-2.5 border rounded-lg text-sm focus:outline-none focus:border-[#0f3d4c] transition-colors"
+
 export default function PlanTripPage() {
   const [step, setStep] = useState(1)
   const [form, setForm] = useState({
@@ -29,16 +31,53 @@ export default function PlanTripPage() {
   const [submitting, setSubmitting] = useState(false)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState("")
+  const [touched, setTouched] = useState<Record<string, boolean>>({})
 
   function toggle(arr: string[], val: string) {
     return arr.includes(val) ? arr.filter(x => x !== val) : [...arr, val]
   }
 
-  async function handleSubmit() {
-    if (!form.customer_name || !form.customer_email || !form.start_date || !form.end_date) {
-      setError("Please complete all required fields.")
+  function setField<K extends keyof typeof form>(key: K, val: typeof form[K]) {
+    setForm(f => ({ ...f, [key]: val }))
+    setTouched(t => ({ ...t, [key]: true }))
+    setError("")
+  }
+
+  function goStep(n: number) {
+    setError("")
+    setStep(n)
+  }
+
+  function goToStep3() {
+    const missing: string[] = []
+    if (!form.start_date) missing.push("Start Date")
+    if (!form.end_date) missing.push("End Date")
+    if (missing.length) {
+      setError(`Please fill in: ${missing.join(" and ")}`)
+      setTouched(t => ({ ...t, start_date: true, end_date: true }))
       return
     }
+    if (form.end_date < form.start_date) {
+      setError("End date must be on or after the start date.")
+      setTouched(t => ({ ...t, end_date: true }))
+      return
+    }
+    goStep(3)
+  }
+
+  async function handleSubmit() {
+    const missing: string[] = []
+    if (!form.customer_name) missing.push("Full Name")
+    if (!form.customer_email) missing.push("Email")
+    if (!form.start_date) missing.push("Start Date")
+    if (!form.end_date) missing.push("End Date")
+
+    if (missing.length) {
+      setError(`Please fill in: ${missing.join(", ")}`)
+      setTouched(t => ({ ...t, customer_name: true, customer_email: true }))
+      return
+    }
+
     setSubmitting(true)
     setError("")
     const notes = [
@@ -61,7 +100,7 @@ export default function PlanTripPage() {
       })
       setSuccess(true)
     } catch {
-      setError("Something went wrong. Please try again.")
+      setError("Something went wrong. Please try again or contact us directly.")
     } finally {
       setSubmitting(false)
     }
@@ -75,12 +114,16 @@ export default function PlanTripPage() {
           <CheckCircle className="w-16 h-16 text-[#1a6b5c] mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-[#0f3d4c] mb-2">Your plan is on its way!</h2>
           <p className="text-gray-600 mb-6">Our specialist will craft a personalised itinerary and contact you within 24 hours.</p>
-          <Link href="/" className="px-6 py-3 bg-[#0f3d4c] text-white rounded-full font-medium hover:bg-[#1a5568] transition-colors">Back to Home</Link>
+          <Link href="/" className="px-6 py-3 bg-[#0f3d4c] text-white rounded-full font-medium hover:bg-[#1a5568] transition-colors">
+            Back to Home
+          </Link>
         </div>
         <Footer />
       </main>
     )
   }
+
+  const today = new Date().toISOString().split("T")[0]
 
   return (
     <main className="min-h-screen">
@@ -101,24 +144,29 @@ export default function PlanTripPage() {
           <div className="flex items-center gap-2 mb-8">
             {[1, 2, 3].map(s => (
               <div key={s} className="flex items-center gap-2">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-colors ${step >= s ? "bg-[#0f3d4c] text-white" : "bg-gray-200 text-gray-400"}`}>{s}</div>
-                {s < 3 && <div className={`flex-1 h-1 rounded ${step > s ? "bg-[#0f3d4c]" : "bg-gray-200"}`} style={{ width: 40 }} />}
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-colors ${step >= s ? "bg-[#0f3d4c] text-white" : "bg-gray-200 text-gray-400"}`}>
+                  {s}
+                </div>
+                {s < 3 && <div className={`h-1 rounded ${step > s ? "bg-[#0f3d4c]" : "bg-gray-200"}`} style={{ width: 40 }} />}
               </div>
             ))}
-            <span className="text-sm text-gray-500 ml-2">Step {step} of 3</span>
+            <span className="text-sm text-gray-500 ml-2">
+              {step === 1 ? "Trip style" : step === 2 ? "Travel dates" : "Your details"}
+            </span>
           </div>
 
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-            {/* Step 1: Trip style */}
+
+            {/* ── Step 1: Trip style (all optional) ── */}
             {step === 1 && (
               <div className="space-y-6">
                 <div>
                   <h2 className="text-xl font-bold text-[#0f3d4c] mb-1">What kind of trip?</h2>
-                  <p className="text-sm text-gray-500">Select all that interest you.</p>
+                  <p className="text-sm text-gray-500">Select all that interest you (optional).</p>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {TRIP_TYPES.map(t => (
-                    <button key={t} onClick={() => setForm(f => ({ ...f, tripTypes: toggle(f.tripTypes, t) }))}
+                    <button key={t} onClick={() => setField("tripTypes", toggle(form.tripTypes, t))}
                       className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${form.tripTypes.includes(t) ? "bg-[#0f3d4c] text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}>
                       {t}
                     </button>
@@ -127,101 +175,163 @@ export default function PlanTripPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1.5">Budget (per person)</label>
-                    <select value={form.budget} onChange={e => setForm(f => ({ ...f, budget: e.target.value }))}
-                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#0f3d4c]">
+                    <select value={form.budget} onChange={e => setField("budget", e.target.value)}
+                      className={`${inputCls} border-gray-300`}>
                       <option value="">Select...</option>
                       {BUDGETS.map(b => <option key={b} value={b}>{b}</option>)}
                     </select>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1.5">Trip duration</label>
-                    <select value={form.duration} onChange={e => setForm(f => ({ ...f, duration: e.target.value }))}
-                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#0f3d4c]">
+                    <select value={form.duration} onChange={e => setField("duration", e.target.value)}
+                      className={`${inputCls} border-gray-300`}>
                       <option value="">Select...</option>
                       {DURATIONS.map(d => <option key={d} value={d}>{d}</option>)}
                     </select>
                   </div>
                 </div>
-                <button onClick={() => setStep(2)} className="w-full py-3 bg-[#0f3d4c] text-white rounded-lg font-medium hover:bg-[#1a5568] transition-colors flex items-center justify-center gap-2">
+                <button onClick={() => goStep(2)}
+                  className="w-full py-3 bg-[#0f3d4c] text-white rounded-lg font-medium hover:bg-[#1a5568] transition-colors flex items-center justify-center gap-2">
                   Next <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
             )}
 
-            {/* Step 2: Dates & group */}
+            {/* ── Step 2: Dates & group (dates required) ── */}
             {step === 2 && (
               <div className="space-y-5">
-                <h2 className="text-xl font-bold text-[#0f3d4c]">When are you travelling?</h2>
+                <div>
+                  <h2 className="text-xl font-bold text-[#0f3d4c]">When are you travelling?</h2>
+                  <p className="text-sm text-gray-500 mt-1">Both dates are required to build your itinerary.</p>
+                </div>
+
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Start Date *</label>
-                    <input type="date" value={form.start_date} onChange={e => setForm(f => ({ ...f, start_date: e.target.value }))}
-                      min={new Date().toISOString().split("T")[0]}
-                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#0f3d4c]" />
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                      Start Date <span className="text-red-500">*</span>
+                    </label>
+                    <input type="date" value={form.start_date} min={today}
+                      onChange={e => setField("start_date", e.target.value)}
+                      className={`${inputCls} ${touched.start_date && !form.start_date ? "border-red-400 bg-red-50" : "border-gray-300"}`} />
+                    {touched.start_date && !form.start_date && (
+                      <p className="text-xs text-red-500 mt-1">Required</p>
+                    )}
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">End Date *</label>
-                    <input type="date" value={form.end_date} onChange={e => setForm(f => ({ ...f, end_date: e.target.value }))}
-                      min={form.start_date || new Date().toISOString().split("T")[0]}
-                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#0f3d4c]" />
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                      End Date <span className="text-red-500">*</span>
+                    </label>
+                    <input type="date" value={form.end_date} min={form.start_date || today}
+                      onChange={e => setField("end_date", e.target.value)}
+                      className={`${inputCls} ${touched.end_date && !form.end_date ? "border-red-400 bg-red-50" : "border-gray-300"}`} />
+                    {touched.end_date && !form.end_date && (
+                      <p className="text-xs text-red-500 mt-1">Required</p>
+                    )}
                   </div>
                 </div>
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">Number of Travellers</label>
-                  <select value={form.number_of_people} onChange={e => setForm(f => ({ ...f, number_of_people: Number(e.target.value) }))}
-                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#0f3d4c]">
-                    {[1,2,3,4,5,6,7,8,9,10,11,12].map(n => <option key={n} value={n}>{n} {n===1?"person":"people"}</option>)}
+                  <select value={form.number_of_people} onChange={e => setField("number_of_people", Number(e.target.value))}
+                    className={`${inputCls} border-gray-300`}>
+                    {[1,2,3,4,5,6,7,8,9,10,11,12].map(n => (
+                      <option key={n} value={n}>{n} {n === 1 ? "person" : "people"}</option>
+                    ))}
                   </select>
                 </div>
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">Additional notes</label>
-                  <textarea rows={3} value={form.customer_notes} onChange={e => setForm(f => ({ ...f, customer_notes: e.target.value }))}
+                  <textarea rows={3} value={form.customer_notes}
+                    onChange={e => setField("customer_notes", e.target.value)}
                     placeholder="Special requirements, accessibility needs, dietary preferences..."
-                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#0f3d4c] resize-none" />
+                    className={`${inputCls} border-gray-300 resize-none`} />
                 </div>
+
+                {error && (
+                  <div className="flex items-center gap-2 text-red-600 text-sm bg-red-50 px-4 py-3 rounded-lg">
+                    <AlertCircle className="w-4 h-4 shrink-0" /> {error}
+                  </div>
+                )}
+
                 <div className="flex gap-3">
-                  <button onClick={() => setStep(1)} className="flex-1 py-3 border border-gray-300 text-gray-600 rounded-lg font-medium hover:bg-gray-50 transition-colors">Back</button>
-                  <button onClick={() => setStep(3)} className="flex-1 py-3 bg-[#0f3d4c] text-white rounded-lg font-medium hover:bg-[#1a5568] transition-colors flex items-center justify-center gap-2">
+                  <button onClick={() => goStep(1)}
+                    className="flex-1 py-3 border border-gray-300 text-gray-600 rounded-lg font-medium hover:bg-gray-50 transition-colors">
+                    Back
+                  </button>
+                  <button onClick={goToStep3}
+                    className="flex-1 py-3 bg-[#0f3d4c] text-white rounded-lg font-medium hover:bg-[#1a5568] transition-colors flex items-center justify-center gap-2">
                     Next <ArrowRight className="w-4 h-4" />
                   </button>
                 </div>
               </div>
             )}
 
-            {/* Step 3: Contact */}
+            {/* ── Step 3: Contact (name + email required) ── */}
             {step === 3 && (
               <div className="space-y-5">
-                <h2 className="text-xl font-bold text-[#0f3d4c]">Your details</h2>
+                <div>
+                  <h2 className="text-xl font-bold text-[#0f3d4c]">Your details</h2>
+                  <p className="text-sm text-gray-500 mt-1">So we can send you the custom itinerary.</p>
+                </div>
+
+                {/* Summary strip */}
+                <div className="bg-[#f0f7f4] rounded-lg px-4 py-3 text-sm text-[#0f3d4c] flex flex-wrap gap-x-5 gap-y-1">
+                  {form.start_date && <span>📅 {form.start_date} → {form.end_date}</span>}
+                  <span>👥 {form.number_of_people} {form.number_of_people === 1 ? "person" : "people"}</span>
+                  {form.tripTypes.length > 0 && <span>🏷 {form.tripTypes.join(", ")}</span>}
+                  {form.budget && <span>💰 {form.budget}</span>}
+                </div>
+
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Full Name *</label>
-                    <input type="text" value={form.customer_name} onChange={e => setForm(f => ({ ...f, customer_name: e.target.value }))}
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                      Full Name <span className="text-red-500">*</span>
+                    </label>
+                    <input type="text" value={form.customer_name}
+                      onChange={e => setField("customer_name", e.target.value)}
                       placeholder="Your name"
-                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#0f3d4c]" />
+                      className={`${inputCls} ${touched.customer_name && !form.customer_name ? "border-red-400 bg-red-50" : "border-gray-300"}`} />
+                    {touched.customer_name && !form.customer_name && (
+                      <p className="text-xs text-red-500 mt-1">Required</p>
+                    )}
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Email *</label>
-                    <input type="email" value={form.customer_email} onChange={e => setForm(f => ({ ...f, customer_email: e.target.value }))}
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                      Email <span className="text-red-500">*</span>
+                    </label>
+                    <input type="email" value={form.customer_email}
+                      onChange={e => setField("customer_email", e.target.value)}
                       placeholder="you@email.com"
-                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#0f3d4c]" />
+                      className={`${inputCls} ${touched.customer_email && !form.customer_email ? "border-red-400 bg-red-50" : "border-gray-300"}`} />
+                    {touched.customer_email && !form.customer_email && (
+                      <p className="text-xs text-red-500 mt-1">Required</p>
+                    )}
                   </div>
                 </div>
+
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Phone</label>
-                  <input type="tel" value={form.customer_phone} onChange={e => setForm(f => ({ ...f, customer_phone: e.target.value }))}
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Phone (optional)</label>
+                  <input type="tel" value={form.customer_phone}
+                    onChange={e => setField("customer_phone", e.target.value)}
                     placeholder="+1 234 567 8900"
-                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#0f3d4c]" />
+                    className={`${inputCls} border-gray-300`} />
                 </div>
+
                 {error && (
                   <div className="flex items-center gap-2 text-red-600 text-sm bg-red-50 px-4 py-3 rounded-lg">
                     <AlertCircle className="w-4 h-4 shrink-0" /> {error}
                   </div>
                 )}
+
                 <div className="flex gap-3">
-                  <button onClick={() => setStep(2)} className="flex-1 py-3 border border-gray-300 text-gray-600 rounded-lg font-medium hover:bg-gray-50 transition-colors">Back</button>
+                  <button onClick={() => goStep(2)}
+                    className="flex-1 py-3 border border-gray-300 text-gray-600 rounded-lg font-medium hover:bg-gray-50 transition-colors">
+                    Back
+                  </button>
                   <button onClick={handleSubmit} disabled={submitting}
-                    className="flex-1 py-3 bg-[#d4a853] text-[#0f3d4c] rounded-lg font-semibold hover:bg-[#e5c07b] transition-colors disabled:opacity-60">
-                    {submitting ? "Sending..." : "Get My Plan"}
+                    className="flex-1 py-3 bg-[#d4a853] text-[#0f3d4c] rounded-lg font-semibold hover:bg-[#e5c07b] transition-colors disabled:opacity-60 flex items-center justify-center gap-2">
+                    {submitting ? "Sending..." : <>Get My Plan <ArrowRight className="w-4 h-4" /></>}
                   </button>
                 </div>
               </div>

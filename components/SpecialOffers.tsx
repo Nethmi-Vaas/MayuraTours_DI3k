@@ -69,15 +69,6 @@ function OfferCard({ pkg, index }: { pkg: Package; index: number }) {
         </h3>
 
         <div className="mt-auto flex items-end justify-between">
-          <div>
-            {pkg.discount_price && (
-              <p className="text-xs text-gray-400 line-through">${pkg.price.toLocaleString()}</p>
-            )}
-            <p className="text-xl font-bold text-[#0f3d4c]">
-              ${finalPrice.toLocaleString()}
-              <span className="text-xs font-normal text-gray-400 ml-1">/ person</span>
-            </p>
-          </div>
           {pkg.max_people && (
             <div className="flex items-center gap-1 text-xs text-gray-400">
               <Users className="w-3 h-3" />
