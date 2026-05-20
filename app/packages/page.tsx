@@ -8,6 +8,8 @@ import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import { api, type Package } from "@/lib/api"
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
+
 const FALLBACK_IMAGES = [
   "https://images.unsplash.com/photo-1588598198321-4c4e5b13e6ba?w=600&q=80",
   "https://images.unsplash.com/photo-1546587348-d12660c30c50?w=600&q=80",
@@ -16,6 +18,12 @@ const FALLBACK_IMAGES = [
   "https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?w=600&q=80",
   "https://images.unsplash.com/photo-1474511320723-9a56873571b7?w=600&q=80",
 ]
+
+function resolveImage(url?: string): string | undefined {
+  if (!url) return undefined
+  if (url.startsWith("http")) return url
+  return `${API_BASE}${url}`
+}
 
 export default function PackagesPage() {
   const [packages, setPackages] = useState<Package[]>([])
@@ -107,7 +115,7 @@ export default function PackagesPage() {
 }
 
 function PackageCard({ pkg, index }: { pkg: Package; index: number }) {
-  const image = pkg.image_url || FALLBACK_IMAGES[index % FALLBACK_IMAGES.length]
+  const image = resolveImage(pkg.image_url) ?? FALLBACK_IMAGES[index % FALLBACK_IMAGES.length]
   const price = pkg.discount_price ?? pkg.price
   const originalPrice = pkg.discount_price ? pkg.price : undefined
   const discount = pkg.discount_price ? Math.round((1 - pkg.discount_price / pkg.price) * 100) : 0
@@ -115,7 +123,7 @@ function PackageCard({ pkg, index }: { pkg: Package; index: number }) {
   return (
     <div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow group">
       <div className="relative h-52 overflow-hidden">
-        <Image src={image} alt={pkg.name} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
+        <Image src={image} alt={pkg.name} fill unoptimized className="object-cover group-hover:scale-105 transition-transform duration-300" />
         {discount > 0 && (
           <div className="absolute top-3 left-3 px-2 py-1 bg-[#1a6b5c] text-white text-xs font-medium rounded">
             {discount}% OFF

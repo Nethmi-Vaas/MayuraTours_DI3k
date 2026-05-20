@@ -8,6 +8,8 @@ import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import { api, type Place } from "@/lib/api"
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
+
 const PLACEHOLDER_IMAGES = [
   "https://images.unsplash.com/photo-1546587348-d12660c30c50?w=600&q=80",
   "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&q=80",
@@ -19,12 +21,34 @@ const PLACEHOLDER_IMAGES = [
 
 export default function DestinationsPage() {
   const [places, setPlaces] = useState<Place[]>([])
+  const [imageMap, setImageMap] = useState<Record<number, string>>({})
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState("")
 
   useEffect(() => {
     api.places.list({ limit: 50 })
-      .then(setPlaces)
+      .then(async (data) => {
+        setPlaces(data)
+        // fetch first media image for every place in parallel
+        const entries = await Promise.all(
+          data.map(async (p) => {
+            try {
+              const res = await fetch(`${API_BASE}/api/media/places/${p.id}`)
+              const media: { url: string }[] = await res.json()
+              if (media.length > 0) {
+                const url = media[0].url.startsWith("http")
+                  ? media[0].url
+                  : `${API_BASE}${media[0].url}`
+                return [p.id, url] as [number, string]
+              }
+            } catch {}
+            return null
+          })
+        )
+        const map: Record<number, string> = {}
+        entries.forEach(e => { if (e) map[e[0]] = e[1] })
+        setImageMap(map)
+      })
       .catch(() => setPlaces([]))
       .finally(() => setLoading(false))
   }, [])
@@ -79,7 +103,7 @@ export default function DestinationsPage() {
               <p className="text-sm text-gray-500 mb-6">{filtered.length} destination{filtered.length !== 1 ? "s" : ""}</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                 {filtered.map((place, i) => (
-                  <PlaceCard key={place.id} place={place} index={i} />
+                  <PlaceCard key={place.id} place={place} index={i} image={imageMap[place.id]} />
                 ))}
               </div>
             </>
@@ -92,12 +116,12 @@ export default function DestinationsPage() {
   )
 }
 
-function PlaceCard({ place, index }: { place: Place; index: number }) {
-  const image = place.image_url || PLACEHOLDER_IMAGES[index % PLACEHOLDER_IMAGES.length]
+function PlaceCard({ place, index, image: mediaImage }: { place: Place; index: number; image?: string }) {
+  const image = mediaImage || place.image_url || PLACEHOLDER_IMAGES[index % PLACEHOLDER_IMAGES.length]
   return (
     <Link href={`/destinations/${place.id}`} className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow group block">
       <div className="relative h-48 overflow-hidden">
-        <Image src={image} alt={place.name} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
+        <Image src={image} alt={place.name} fill unoptimized className="object-cover group-hover:scale-105 transition-transform duration-300" />
         {place.is_featured && (
           <div className="absolute top-3 left-3 px-2 py-1 bg-[#d4a853] text-[#0f3d4c] text-xs font-semibold rounded">Featured</div>
         )}

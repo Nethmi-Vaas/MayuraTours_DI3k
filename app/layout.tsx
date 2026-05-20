@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Playfair_Display, Inter } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
+import PeacockTransition from '@/components/PeacockTransition'
 import './globals.css'
 
 const playfair = Playfair_Display({ 
@@ -28,6 +29,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${playfair.variable} ${inter.variable}`}>
       <body className="font-sans antialiased bg-background">
+        <PeacockTransition />
         {children}
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>

@@ -1,22 +1,28 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { ArrowRight, Mail, Phone, MapPin } from "lucide-react"
-import AnimatedPeacockFeather from "./AnimatedPeacockFeather"
 
 export default function Footer() {
   return (
     <footer className="relative overflow-hidden bg-peacock-deep" style={{ background: "linear-gradient(160deg, #071828 0%, #0f3d4c 50%, #071828 100%)" }}>
 
       {/* Decorative feathers */}
-      <div className="absolute top-0 right-0 opacity-20 pointer-events-none">
-        <AnimatedPeacockFeather size={160} delay={0} rotation={-10} opacity={1} animate="drift" />
+      <div className="absolute top-0 right-0 pointer-events-none">
+        <Image src="/feather.png" alt="" aria-hidden width={160} height={448} unoptimized
+          className="animate-feather-drift animate-iridescent"
+          style={{ "--rot": "-10deg", "--drift": "-15px", opacity: 0.2, filter: "drop-shadow(0 0 10px rgba(45,139,179,0.5))" } as React.CSSProperties} />
       </div>
-      <div className="absolute top-8 right-28 opacity-12 pointer-events-none">
-        <AnimatedPeacockFeather size={90}  delay={2.5} rotation={15} opacity={1} animate="float" />
+      <div className="absolute top-8 right-28 pointer-events-none">
+        <Image src="/feather.png" alt="" aria-hidden width={90} height={252} unoptimized
+          className="animate-feather-float animate-iridescent"
+          style={{ "--rot": "15deg", "--drift": "15px", animationDelay: "2.5s", opacity: 0.12, filter: "drop-shadow(0 0 8px rgba(45,139,179,0.4))" } as React.CSSProperties} />
       </div>
-      <div className="absolute bottom-0 left-4 opacity-10 pointer-events-none">
-        <AnimatedPeacockFeather size={120} delay={1.2} rotation={175} opacity={1} animate="sway" />
+      <div className="absolute bottom-0 left-4 pointer-events-none">
+        <Image src="/feather.png" alt="" aria-hidden width={120} height={336} unoptimized
+          className="animate-feather-sway animate-iridescent"
+          style={{ "--rot": "175deg", "--drift": "-15px", animationDelay: "1.2s", opacity: 0.1, filter: "drop-shadow(0 0 8px rgba(45,139,179,0.4))" } as React.CSSProperties} />
       </div>
 
       {/* Gold divider line */}
@@ -28,31 +34,15 @@ export default function Footer() {
 
           {/* Brand column */}
           <div className="lg:col-span-1">
-            <div className="flex items-center gap-3 mb-4">
-              {/* Peacock eye mini logo */}
-              <svg viewBox="0 0 30 36" width={30} height={36} xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                  <radialGradient id="fOuter" cx="50%" cy="40%" r="50%">
-                    <stop offset="0%" stopColor="#2d8bb3" /><stop offset="100%" stopColor="#0f3d4c" />
-                  </radialGradient>
-                  <radialGradient id="fGold" cx="40%" cy="35%" r="50%">
-                    <stop offset="0%" stopColor="#f0d060" /><stop offset="100%" stopColor="#c9a227" />
-                  </radialGradient>
-                  <radialGradient id="fInner" cx="45%" cy="40%" r="50%">
-                    <stop offset="0%" stopColor="#4ab0e0" /><stop offset="100%" stopColor="#1a5568" />
-                  </radialGradient>
-                </defs>
-                <circle cx="15" cy="11" r="10" fill="url(#fOuter)" />
-                <circle cx="15" cy="11" r="7"  fill="url(#fGold)" />
-                <circle cx="15" cy="11" r="4"  fill="url(#fInner)" />
-                <circle cx="15" cy="11" r="1.6" fill="#071828" />
-                <ellipse cx="13.5" cy="9.8" rx="1" ry="0.7" fill="rgba(255,255,255,0.7)" />
-                <line x1="15" y1="21" x2="15" y2="36" stroke="#d4a853" strokeWidth="1.8" strokeLinecap="round" />
-              </svg>
-              <div>
-                <p className="font-serif text-lg font-bold italic text-shimmer leading-none">Mayura</p>
-                <p className="text-[9px] tracking-[0.3em] text-white/40 uppercase">Tours</p>
-              </div>
+            <div className="mb-4">
+              <Image
+                src="/logo.png"
+                alt="Mayura Tours"
+                width={160}
+                height={56}
+                className="h-12 w-auto object-contain"
+                unoptimized
+              />
             </div>
             <p className="text-sm text-white/50 leading-relaxed mb-6">
               Crafting bespoke Sri Lankan journeys with a commitment to luxury, authenticity, and sustainable exploration.

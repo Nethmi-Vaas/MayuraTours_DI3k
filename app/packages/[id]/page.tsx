@@ -23,7 +23,12 @@ export default function PackageDetailPage() {
       .finally(() => setLoading(false))
   }, [id])
 
-  const image = pkg?.image_url || "https://images.unsplash.com/photo-1588416936097-41850ab3d86d?w=1200&q=80"
+  const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
+  const resolveImg = (url?: string) => url ? (url.startsWith("http") ? url : `${API_BASE}${url}`) : undefined
+  const image =
+    resolveImg(pkg?.cover_image_url) ??
+    resolveImg(pkg?.image_url) ??
+    "https://images.unsplash.com/photo-1588416936097-41850ab3d86d?w=1200&q=80"
   const price = pkg?.discount_price ?? pkg?.price ?? 0
   const includes = pkg?.includes ? pkg.includes.split(",").map(s => s.trim()).filter(Boolean) : []
 
@@ -46,7 +51,7 @@ export default function PackageDetailPage() {
         <>
           {/* Hero Image */}
           <div className="relative h-72 md:h-96">
-            <Image src={image} alt={pkg.name} fill className="object-cover" />
+            <Image src={image} alt={pkg.name} fill unoptimized className="object-cover" />
             <div className="absolute inset-0 bg-[#0f3d4c]/50" />
             <div className="absolute bottom-8 left-8 text-white">
               <Link href="/packages" className="flex items-center gap-2 text-white/80 hover:text-white text-sm mb-4 transition-colors">

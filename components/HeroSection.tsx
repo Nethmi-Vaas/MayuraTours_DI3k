@@ -1,51 +1,64 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { ArrowRight } from "lucide-react"
-import AnimatedPeacockFeather from "./AnimatedPeacockFeather"
+
+
 
 const FEATHERS = [
-  { size: 115, delay: 0,   rotation: -14, opacity: 0.7,  top: "0%",  right: "4%"  },
-  { size: 80,  delay: 1.4, rotation: 12,  opacity: 0.5,  top: "10%", right: "22%" },
-  { size: 95,  delay: 2.6, rotation: -28, opacity: 0.55, top: "-4%", right: "14%" },
-  { size: 60,  delay: 0.7, rotation: 30,  opacity: 0.38, top: "22%", right: "8%"  },
-  { size: 70,  delay: 3.2, rotation: -8,  opacity: 0.42, top: "5%",  right: "32%" },
-  { size: 50,  delay: 1.9, rotation: 20,  opacity: 0.3,  top: "28%", right: "26%" },
+  { size: 115, delay: 0,   rotation: -14, opacity: 0.7,  top: "0%",  right: "4%",  anim: "drift" },
+  { size: 80,  delay: 1.4, rotation: 12,  opacity: 0.5,  top: "10%", right: "22%", anim: "float" },
+  { size: 95,  delay: 2.6, rotation: -28, opacity: 0.55, top: "-4%", right: "14%", anim: "sway"  },
+  { size: 60,  delay: 0.7, rotation: 30,  opacity: 0.38, top: "22%", right: "8%",  anim: "drift" },
+  { size: 70,  delay: 3.2, rotation: -8,  opacity: 0.42, top: "5%",  right: "32%", anim: "float" },
+  { size: 50,  delay: 1.9, rotation: 20,  opacity: 0.3,  top: "28%", right: "26%", anim: "sway"  },
 ] as const
 
 export default function HeroSection() {
   return (
     <section
       className="relative overflow-hidden flex items-center"
-      style={{
-        minHeight: "52vh",
-        background: "linear-gradient(135deg, #071828 0%, #0f3d4c 55%, #1a3a2a 85%, #071828 100%)",
-      }}
+      style={{ minHeight: "52vh", paddingTop: "72px" }}
     >
-      {/* Radial glow */}
+      {/* Sigiriya background image */}
+      <Image
+        src="/Sigiriya.jpeg"
+        alt="Sigiriya"
+        fill
+        priority
+        unoptimized
+        className="object-cover object-center"
+        style={{ opacity: 0.35 }}
+      />
+
+      {/* Dark overlay to maintain readability */}
       <div
-        className="absolute inset-0 pointer-events-none"
+        className="absolute inset-0"
         style={{
-          background:
-            "radial-gradient(ellipse at 25% 65%, rgba(45,139,179,0.15) 0%, transparent 55%)," +
-            "radial-gradient(ellipse at 72% 30%, rgba(26,107,92,0.12) 0%, transparent 50%)",
+          background: "linear-gradient(135deg, rgba(7,24,40,0.85) 0%, rgba(15,61,76,0.75) 55%, rgba(26,58,42,0.80) 85%, rgba(7,24,40,0.85) 100%)",
         }}
       />
 
       {/* Animated peacock feathers — right side */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         {FEATHERS.map((f, i) => (
-          <div
-            key={i}
-            className="absolute"
-            style={{ top: f.top, right: f.right }}
-          >
-            <AnimatedPeacockFeather
-              size={f.size}
-              delay={f.delay}
-              rotation={f.rotation}
-              opacity={f.opacity}
-              animate={i % 3 === 0 ? "drift" : i % 3 === 1 ? "float" : "sway"}
+          <div key={i} className="absolute" style={{ top: f.top, right: f.right }}>
+            <Image
+              src="/feather.png"
+              alt=""
+              aria-hidden
+              width={f.size}
+              height={Math.round(f.size * 2.8)}
+              unoptimized
+              className={`animate-feather-${f.anim} animate-iridescent`}
+              style={{
+                "--rot":   `${f.rotation}deg`,
+                "--drift": `${(f.rotation % 2 === 0 ? 1 : -1) * 15}px`,
+                animationDelay: `${f.delay}s`,
+                opacity:   f.opacity,
+                filter:    "drop-shadow(0 0 8px rgba(45,139,179,0.5))",
+              } as React.CSSProperties}
             />
           </div>
         ))}

@@ -9,6 +9,7 @@ export interface Package {
   discount_price?: number
   max_people?: number
   image_url?: string
+  cover_image_url?: string
   description?: string
   includes?: string
   excludes?: string

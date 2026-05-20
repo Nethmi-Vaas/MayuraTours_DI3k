@@ -9,7 +9,7 @@ import Footer from "@/components/Footer"
 import { api } from "@/lib/api"
 
 const TRIP_TYPES = ["Cultural Heritage", "Wildlife & Nature", "Beach & Coast", "Tea Country", "Adventure", "Honeymoon", "Family", "Photography"]
-const BUDGETS = ["Under $1,000", "$1,000–$2,000", "$2,000–$3,500", "$3,500–$5,000", "$5,000+"]
+const BUDGETS = ["Budget", "Standard", "Premium", "Luxury", "Ultra-Luxury"]
 const DURATIONS = ["3–5 days", "6–8 days", "9–12 days", "13–16 days", "17+ days"]
 
 const inputCls = "w-full px-3 py-2.5 border rounded-lg text-sm focus:outline-none focus:border-[#0f3d4c] transition-colors"
@@ -177,7 +177,7 @@ export default function PlanTripPage() {
                     <label className="block text-sm font-medium text-gray-700 mb-1.5">Budget (per person)</label>
                     <select value={form.budget} onChange={e => setField("budget", e.target.value)}
                       className={`${inputCls} border-gray-300`}>
-                      <option value="">Select...</option>
+                      <option value="">Select a range...</option>
                       {BUDGETS.map(b => <option key={b} value={b}>{b}</option>)}
                     </select>
                   </div>

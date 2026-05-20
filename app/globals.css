@@ -171,6 +171,70 @@
   to   { stroke-dashoffset: 0;   opacity: 1; }
 }
 
+/* ─── Peacock page transition (3D) ──────────────────── */
+@keyframes peacockOverlay {
+  0%   { opacity: 0; }
+  6%   { opacity: 1; }
+  78%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@keyframes peacock3DFlyThrough {
+  0% {
+    transform: translateZ(-900px) rotateX(22deg) rotateY(-18deg);
+    opacity: 0;
+    filter: blur(24px);
+  }
+  22% {
+    transform: translateZ(-80px) rotateX(4deg) rotateY(-3deg);
+    opacity: 1;
+    filter: blur(1px);
+  }
+  55% {
+    transform: translateZ(0px) rotateX(0deg) rotateY(0deg);
+    opacity: 1;
+    filter: blur(0px);
+  }
+  78% {
+    transform: translateZ(160px) rotateX(-4deg) rotateY(6deg);
+    opacity: 1;
+    filter: blur(2px);
+  }
+  100% {
+    transform: translateZ(900px) rotateX(-18deg) rotateY(16deg);
+    opacity: 0;
+    filter: blur(28px);
+  }
+}
+
+@keyframes peacock3DSpeedLine {
+  0%   { stroke-dashoffset: 0;    opacity: 0; }
+  15%  { opacity: 0.75; }
+  65%  { stroke-dashoffset: -300; opacity: 0.55; }
+  100% { stroke-dashoffset: -300; opacity: 0; }
+}
+
+@keyframes peacock3DRingExpand {
+  0%   { transform: scale(0);   opacity: 0; }
+  25%  { transform: scale(1);   opacity: 0.55; }
+  70%  { transform: scale(2.2); opacity: 0.2; }
+  100% { transform: scale(4);   opacity: 0; }
+}
+
+@keyframes peacock3DGlow {
+  0%   { opacity: 0; transform: scale(0.5); }
+  35%  { opacity: 0.8; transform: scale(1); }
+  70%  { opacity: 0.5; transform: scale(1.08); }
+  100% { opacity: 0; transform: scale(1.4); }
+}
+
+@keyframes peacockTextReveal {
+  0%   { opacity: 0; transform: translateY(10px); }
+  20%  { opacity: 1; transform: translateY(0); }
+  75%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+
 /* ─── Animation utility classes ─────────────────────── */
 .animate-feather-float  { animation: featherFloat  6s ease-in-out infinite; }
 .animate-feather-sway   { animation: featherSway   8s ease-in-out infinite; }
