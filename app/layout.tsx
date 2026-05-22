@@ -39,3 +39,9 @@ export default function RootLayout({
     </html>
   )
 }
+ === 'production' && <Analytics />}
+        </AuthProvider>
+      </body>
+    </html>
+  )
+}
