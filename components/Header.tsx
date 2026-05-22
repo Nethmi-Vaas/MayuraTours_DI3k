@@ -2,8 +2,9 @@
 
 import Link from "next/link"
 import Image from "next/image"
-import { useState, useEffect } from "react"
-import { Menu, X } from "lucide-react"
+import { useState, useEffect, useRef } from "react"
+import { Menu, X, User, ChevronDown, LayoutDashboard, LogOut } from "lucide-react"
+import { useAuth } from "@/lib/AuthContext"
 
 const NAV_LINKS = [
   { label: "Packages",     href: "/packages" },
@@ -15,12 +16,31 @@ const NAV_LINKS = [
 export default function Header() {
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [dropdownOpen, setDropdownOpen] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+  const { user, isLoggedIn, logout } = useAuth()
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40)
     window.addEventListener("scroll", onScroll, { passive: true })
     return () => window.removeEventListener("scroll", onScroll)
   }, [])
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setDropdownOpen(false)
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
+
+  function handleLogout() {
+    logout()
+    setDropdownOpen(false)
+    window.location.href = "/"
+  }
 
   return (
     <header
@@ -69,21 +89,53 @@ export default function Header() {
           ))}
         </nav>
 
-        {/* Auth buttons + mobile toggle */}
+        {/* Auth section */}
         <div className="flex items-center gap-3">
-          <Link
-            href="/signin"
-            className="hidden sm:inline-flex px-5 py-2 text-sm font-medium text-white/80 hover:text-white border border-white/20 rounded-full glass-card hover:border-[#d4a853]/50 transition-all duration-300"
-          >
-            Sign In
-          </Link>
-          <Link
-            href="/register"
-            className="hidden sm:inline-flex px-5 py-2 text-sm font-semibold text-[#071828] rounded-full transition-all duration-300 hover:brightness-110"
-            style={{ background: "linear-gradient(135deg, #d4a853, #f0d060)" }}
-          >
-            Register
-          </Link>
+          {isLoggedIn && user ? (
+            <div className="relative" ref={dropdownRef}>
+              <button
+                onClick={() => setDropdownOpen(o => !o)}
+                className="hidden sm:flex items-center gap-2 px-4 py-2 text-sm font-medium text-white/80 hover:text-white border border-white/20 rounded-full transition-all duration-300 hover:border-[#d4a853]/50"
+              >
+                <User className="w-4 h-4" />
+                <span>{user.first_name}</span>
+                <ChevronDown className={`w-3 h-3 transition-transform ${dropdownOpen ? "rotate-180" : ""}`} />
+              </button>
+              {dropdownOpen && (
+                <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-50">
+                  <Link href="/dashboard" onClick={() => setDropdownOpen(false)}
+                    className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50">
+                    <LayoutDashboard className="w-4 h-4" /> My Dashboard
+                  </Link>
+                  <Link href="/dashboard/profile" onClick={() => setDropdownOpen(false)}
+                    className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50">
+                    <User className="w-4 h-4" /> My Profile
+                  </Link>
+                  <hr className="my-1" />
+                  <button onClick={handleLogout}
+                    className="flex items-center gap-2 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 w-full text-left">
+                    <LogOut className="w-4 h-4" /> Sign Out
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <>
+              <Link
+                href="/signin"
+                className="hidden sm:inline-flex px-5 py-2 text-sm font-medium text-white/80 hover:text-white border border-white/20 rounded-full glass-card hover:border-[#d4a853]/50 transition-all duration-300"
+              >
+                Sign In
+              </Link>
+              <Link
+                href="/register"
+                className="hidden sm:inline-flex px-5 py-2 text-sm font-semibold text-[#071828] rounded-full transition-all duration-300 hover:brightness-110"
+                style={{ background: "linear-gradient(135deg, #d4a853, #f0d060)" }}
+              >
+                Register
+              </Link>
+            </>
+          )}
 
           {/* Mobile hamburger */}
           <button
@@ -114,15 +166,31 @@ export default function Header() {
               </Link>
             ))}
             <div className="flex gap-3 pt-4">
-              <Link href="/signin" onClick={() => setMenuOpen(false)}
-                className="flex-1 text-center py-2.5 text-sm font-medium text-white/80 border border-white/20 rounded-full glass-card">
-                Sign In
-              </Link>
-              <Link href="/register" onClick={() => setMenuOpen(false)}
-                className="flex-1 text-center py-2.5 text-sm font-semibold text-[#071828] rounded-full"
-                style={{ background: "linear-gradient(135deg, #d4a853, #f0d060)" }}>
-                Register
-              </Link>
+              {isLoggedIn && user ? (
+                <>
+                  <Link href="/dashboard" onClick={() => setMenuOpen(false)}
+                    className="flex-1 text-center py-2.5 text-sm font-medium text-white/80 border border-white/20 rounded-full glass-card">
+                    Dashboard
+                  </Link>
+                  <button onClick={() => { handleLogout(); setMenuOpen(false) }}
+                    className="flex-1 text-center py-2.5 text-sm font-semibold text-[#071828] rounded-full"
+                    style={{ background: "linear-gradient(135deg, #d4a853, #f0d060)" }}>
+                    Sign Out
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link href="/signin" onClick={() => setMenuOpen(false)}
+                    className="flex-1 text-center py-2.5 text-sm font-medium text-white/80 border border-white/20 rounded-full glass-card">
+                    Sign In
+                  </Link>
+                  <Link href="/register" onClick={() => setMenuOpen(false)}
+                    className="flex-1 text-center py-2.5 text-sm font-semibold text-[#071828] rounded-full"
+                    style={{ background: "linear-gradient(135deg, #d4a853, #f0d060)" }}>
+                    Register
+                  </Link>
+                </>
+              )}
             </div>
           </nav>
         </div>

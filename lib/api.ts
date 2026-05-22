@@ -60,12 +60,50 @@ export interface TourRequest {
   start_date: string
   end_date: string
   customer_notes?: string
+  turnstile_token?: string
 }
 
 export interface AuthUser {
   access_token: string
   token_type: string
   user_id: number
+}
+
+export interface UserProfile {
+  id: number
+  email: string
+  first_name: string
+  last_name: string
+  phone: string
+  address?: string
+  country?: string
+  is_verified: boolean
+}
+
+export interface TourDay {
+  id: number
+  day_number: number
+  date: string
+  place_name?: string
+  stay_city?: string
+  hotel_name?: string
+  notes?: string
+}
+
+export interface MyTour {
+  id: number
+  title?: string
+  customer_name: string
+  customer_email: string
+  number_of_people: number
+  start_date: string
+  end_date: string
+  status: string
+  total_price: number
+  currency?: string
+  payment_status: string
+  customer_notes?: string
+  days: TourDay[]
 }
 
 async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
@@ -121,15 +159,42 @@ export const api = {
   },
 
   auth: {
-    register: (data: { email: string; password: string; first_name: string; last_name?: string; phone?: string }) =>
+    register: (data: { email: string; password: string; first_name: string; last_name?: string; phone?: string; turnstile_token?: string }) =>
       apiFetch<AuthUser & { message: string }>("/api/auth/user/register", {
         method: "POST",
         body: JSON.stringify(data),
       }),
-    login: (data: { email: string; password: string }) =>
+    login: (data: { email: string; password: string; turnstile_token?: string }) =>
       apiFetch<AuthUser>("/api/auth/user/login", {
         method: "POST",
         body: JSON.stringify(data),
+      }),
+    requestOtp: (data: { email: string; turnstile_token?: string }) =>
+      apiFetch<{ message: string }>("/api/auth/user/request-otp", {
+        method: "POST",
+        body: JSON.stringify(data),
+      }),
+    verifyOtp: (data: { email: string; otp_code: string }) =>
+      apiFetch<AuthUser>("/api/auth/user/verify-otp", {
+        method: "POST",
+        body: JSON.stringify(data),
+      }),
+    getMe: (token: string) =>
+      apiFetch<UserProfile>("/api/auth/user/me", {
+        headers: { Authorization: `Bearer ${token}` },
+      }),
+    updateMe: (token: string, data: Partial<Pick<UserProfile, "first_name" | "last_name" | "phone" | "address" | "country">>) =>
+      apiFetch<UserProfile>("/api/auth/user/me", {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${token}` },
+        body: JSON.stringify(data),
+      }),
+  },
+
+  myTours: {
+    list: (token: string) =>
+      apiFetch<MyTour[]>("/api/tours/my-tours", {
+        headers: { Authorization: `Bearer ${token}` },
       }),
   },
 }

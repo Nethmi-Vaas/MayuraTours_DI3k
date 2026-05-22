@@ -1,11 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useCallback } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { ArrowRight, CheckCircle, AlertCircle } from "lucide-react"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
+import TurnstileWidget from "@/components/TurnstileWidget"
 import { api } from "@/lib/api"
 
 const TRIP_TYPES = ["Cultural Heritage", "Wildlife & Nature", "Beach & Coast", "Tea Country", "Adventure", "Honeymoon", "Family", "Photography"]
@@ -32,6 +33,8 @@ export default function PlanTripPage() {
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState("")
   const [touched, setTouched] = useState<Record<string, boolean>>({})
+  const [turnstileToken, setTurnstileToken] = useState("")
+  const onTurnstileVerify = useCallback((t: string) => setTurnstileToken(t), [])
 
   function toggle(arr: string[], val: string) {
     return arr.includes(val) ? arr.filter(x => x !== val) : [...arr, val]
@@ -97,6 +100,7 @@ export default function PlanTripPage() {
         start_date: form.start_date,
         end_date: form.end_date,
         customer_notes: notes || undefined,
+        turnstile_token: turnstileToken || undefined,
       })
       setSuccess(true)
     } catch {
@@ -317,6 +321,8 @@ export default function PlanTripPage() {
                     placeholder="+1 234 567 8900"
                     className={`${inputCls} border-gray-300`} />
                 </div>
+
+                <TurnstileWidget onVerify={onTurnstileVerify} />
 
                 {error && (
                   <div className="flex items-center gap-2 text-red-600 text-sm bg-red-50 px-4 py-3 rounded-lg">

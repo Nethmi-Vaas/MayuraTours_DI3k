@@ -1,15 +1,21 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useCallback } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { CheckCircle, AlertCircle, Eye, EyeOff } from "lucide-react"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
+import TurnstileWidget from "@/components/TurnstileWidget"
 import { api } from "@/lib/api"
+import { useAuth } from "@/lib/AuthContext"
 
 export default function RegisterPage() {
+  const router = useRouter()
+  const { login } = useAuth()
   const [form, setForm] = useState({ first_name: "", last_name: "", email: "", phone: "", password: "", confirm: "" })
   const [showPw, setShowPw] = useState(false)
+  const [turnstileToken, setTurnstileToken] = useState("")
   const [submitting, setSubmitting] = useState(false)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState("")
@@ -17,6 +23,8 @@ export default function RegisterPage() {
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     setForm(f => ({ ...f, [e.target.name]: e.target.value }))
   }
+
+  const onTurnstileVerify = useCallback((t: string) => setTurnstileToken(t), [])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -30,15 +38,16 @@ export default function RegisterPage() {
         first_name: form.first_name,
         last_name: form.last_name,
         phone: form.phone,
+        turnstile_token: turnstileToken || undefined,
       })
       if (res.access_token) {
-        localStorage.setItem("user_token", res.access_token)
-        localStorage.setItem("user_id", String(res.user_id))
+        await login(res.access_token, res.user_id)
       }
       setSuccess(true)
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : ""
-      if (msg.includes("409") || msg.includes("already")) setError("This email is already registered.")
+      if (msg.includes("Human verification")) setError("Please complete the human verification.")
+      else if (msg.includes("409") || msg.includes("already")) setError("This email is already registered.")
       else setError("Registration failed. Please try again.")
     } finally {
       setSubmitting(false)
@@ -53,8 +62,8 @@ export default function RegisterPage() {
           <CheckCircle className="w-16 h-16 text-[#1a6b5c] mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-[#0f3d4c] mb-2">Welcome to Mayura Tours!</h2>
           <p className="text-gray-600 mb-6">Your account has been created successfully.</p>
-          <Link href="/packages" className="px-6 py-3 bg-[#0f3d4c] text-white rounded-full font-medium hover:bg-[#1a5568] transition-colors">
-            Browse Packages
+          <Link href="/dashboard" className="px-6 py-3 bg-[#0f3d4c] text-white rounded-full font-medium hover:bg-[#1a5568] transition-colors">
+            Go to Dashboard
           </Link>
         </div>
         <Footer />
@@ -109,6 +118,8 @@ export default function RegisterPage() {
             <input type="password" name="confirm" value={form.confirm} onChange={handleChange} required placeholder="Repeat password"
               className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#0f3d4c]" />
           </div>
+
+          <TurnstileWidget onVerify={onTurnstileVerify} />
 
           {error && (
             <div className="flex items-center gap-2 text-red-600 text-sm bg-red-50 px-4 py-3 rounded-lg">

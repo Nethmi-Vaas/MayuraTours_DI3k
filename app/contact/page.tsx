@@ -1,11 +1,12 @@
 "use client"
 
-import { useState, Suspense } from "react"
+import { useState, Suspense, useCallback } from "react"
 import { useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { CheckCircle, AlertCircle } from "lucide-react"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
+import TurnstileWidget from "@/components/TurnstileWidget"
 import { api } from "@/lib/api"
 
 function ContactForm() {
@@ -25,6 +26,8 @@ function ContactForm() {
   const [submitting, setSubmitting] = useState(false)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState("")
+  const [turnstileToken, setTurnstileToken] = useState("")
+  const onTurnstileVerify = useCallback((t: string) => setTurnstileToken(t), [])
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
     setForm(f => ({ ...f, [e.target.name]: e.target.value }))
@@ -48,10 +51,13 @@ function ContactForm() {
         start_date: form.start_date,
         end_date: form.end_date,
         customer_notes: form.customer_notes || undefined,
+        turnstile_token: turnstileToken || undefined,
       })
       setSuccess(true)
-    } catch {
-      setError("Something went wrong. Please try again or email us directly.")
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : ""
+      if (msg.includes("Human verification")) setError("Please complete the human verification.")
+      else setError("Something went wrong. Please try again or email us directly.")
     } finally {
       setSubmitting(false)
     }
@@ -152,6 +158,8 @@ function ContactForm() {
             className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#0f3d4c]/20 focus:border-[#0f3d4c] resize-none"
           />
         </div>
+
+        <TurnstileWidget onVerify={onTurnstileVerify} />
 
         {error && (
           <div className="flex items-center gap-2 text-red-600 text-sm bg-red-50 px-4 py-3 rounded-lg">
