@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef, useCallback } from "react"
+import { useState, useEffect, useRef, useCallback, Suspense } from "react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { AlertCircle, Eye, EyeOff } from "lucide-react"
@@ -13,7 +13,7 @@ import { useAuth } from "@/lib/AuthContext"
 type Tab = "password" | "otp"
 type OtpStep = "email" | "code"
 
-export default function SignInPage() {
+function SignInContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { login } = useAuth()
@@ -214,5 +214,13 @@ export default function SignInPage() {
       </div>
       <Footer />
     </main>
+  )
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#faf8f5]" />}>
+      <SignInContent />
+    </Suspense>
   )
 }
